@@ -1,24 +1,26 @@
-type Color = string
+import { Color, createColor } from './color'
+
+export const defaultColor = createColor('#fff')
 
 type Row = {
   label: string
-  '50': Color | undefined
-  '100': Color | undefined
-  '200': Color | undefined
-  '300': Color | undefined
-  '400': Color | undefined
-  '500': Color | undefined
-  '600': Color | undefined
-  '700': Color | undefined
-  '800': Color | undefined
-  '900': Color | undefined
+  '50': Color
+  '100': Color
+  '200': Color
+  '300': Color
+  '400': Color
+  '500': Color
+  '600': Color
+  '700': Color
+  '800': Color
+  '900': Color
 }
 
 type Palette = {
   primary: Row
   secondary: Row
   tertiary: Row
-  gray: Row
+  neutral: Row
   success: Row
   error: Row
   warning: Row
@@ -26,32 +28,40 @@ type Palette = {
 }
 
 export type RowKey = keyof Palette
-export type ColumnKey = keyof Row
+export type ColumnKey = Exclude<keyof Row, 'label'>
 
 export type State = {
+  selectedCell: {
+    rowKey: RowKey | undefined
+    columnKey: ColumnKey | undefined
+  }
   palette: Palette
 }
 
 const createEmptyRow = (label: string): Row => ({
   label,
-  '50': undefined,
-  '100': undefined,
-  '200': undefined,
-  '300': undefined,
-  '400': undefined,
-  '500': undefined,
-  '600': undefined,
-  '700': undefined,
-  '800': undefined,
-  '900': undefined,
+  '50': defaultColor,
+  '100': defaultColor,
+  '200': defaultColor,
+  '300': defaultColor,
+  '400': defaultColor,
+  '500': defaultColor,
+  '600': defaultColor,
+  '700': defaultColor,
+  '800': defaultColor,
+  '900': defaultColor,
 })
 
 export const initialState: State = {
+  selectedCell: {
+    rowKey: undefined,
+    columnKey: undefined,
+  },
   palette: {
     primary: createEmptyRow('Primary'),
     secondary: createEmptyRow('Secondary'),
     tertiary: createEmptyRow('Tertiary'),
-    gray: createEmptyRow('Gray'),
+    neutral: createEmptyRow('Neutral'),
     success: createEmptyRow('Success'),
     error: createEmptyRow('Error'),
     warning: createEmptyRow('Warning'),
@@ -69,9 +79,14 @@ export type Action =
       payload: {
         rowKey: RowKey
         columnKey: Exclude<ColumnKey, 'label'>
-        value: Color | undefined
+        value: Color
       }
     }
+  | {
+      type: 'SELECT_CELL'
+      payload: { rowKey: RowKey; columnKey: Exclude<ColumnKey, 'label'> }
+    }
+  | { type: 'UNSELECT_CELL' }
   | { type: 'RESET' }
 
 export const reducer = (state: State, action: Action): State => {
@@ -86,6 +101,22 @@ export const reducer = (state: State, action: Action): State => {
             ...state.palette[action.payload.rowKey],
             [action.payload.columnKey]: action.payload.value,
           },
+        },
+      }
+    case 'SELECT_CELL':
+      return {
+        ...state,
+        selectedCell: {
+          rowKey: action.payload.rowKey,
+          columnKey: action.payload.columnKey,
+        },
+      }
+    case 'UNSELECT_CELL':
+      return {
+        ...state,
+        selectedCell: {
+          rowKey: undefined,
+          columnKey: undefined,
         },
       }
     case 'RESET':
