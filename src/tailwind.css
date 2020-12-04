@@ -3,12 +3,12 @@
 
 .palette-header {
   @apply mb-4 grid gap-x-3;
-  grid-template-columns: theme('space.40') repeat(10, theme('spacing.10'));
+  grid-template-columns: theme('space.32') repeat(10, theme('spacing.10'));
 }
 
 .palette-grid {
   @apply grid gap-x-3 gap-y-7;
-  grid-template-columns: theme('space.40') repeat(10, theme('spacing.10'));
+  grid-template-columns: theme('space.32') repeat(10, theme('spacing.10'));
   grid-template-rows: repeat(3, theme('spacing.10')) 1px theme('spacing.10') 1px repeat(
       4,
       theme('spacing.10')

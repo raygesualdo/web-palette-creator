@@ -193,11 +193,16 @@ function App() {
   }
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: '1fr 300px' }}>
+    <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
       <div className="p-4">
         <div className="palette-header">
           {orderedKeys.map((key) => (
-            <div key={key} className="font-semibold text-center">
+            <div
+              key={key}
+              className={`font-semibold ${
+                key === 'label' ? 'text-left' : 'text-center'
+              }`}
+            >
               {key === 'label' ? 'Name' : key}
             </div>
           ))}
@@ -216,7 +221,7 @@ function App() {
         </div>
       </div>
       <div className="bg-gray-50 p-4">
-        <h1 className="bg-gray-900 text-gray-50 px-4 py-8 -mt-4 -mx-4 mb-4 text-2xl font-bold">
+        <h1 className="bg-gray-900 text-gray-50 px-4 py-8 -mt-4 -mx-4 mb-4 text-3xl font-medium">
           Web Palette Builder
         </h1>
         <p>This is the content that will go in the sidebar.</p>
