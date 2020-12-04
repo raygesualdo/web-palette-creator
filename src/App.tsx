@@ -7,7 +7,7 @@ import {
   ColumnKey,
   defaultColor,
 } from './reducer'
-import { Color, createColor } from './color'
+import { CodeExample } from './CodeExample'
 
 const orderedKeys: ['label', ...ColumnKey[]] = [
   'label',
@@ -219,6 +219,7 @@ function App() {
           Web Palette Builder
         </h1>
         <p>This is the content that will go in the sidebar.</p>
+        <CodeExample palette={palette} />
       </div>
     </div>
   )
