@@ -7,6 +7,7 @@ import {
   ColumnKey,
   defaultColor,
 } from './reducer'
+import { Color, getMedianColor } from './color'
 import { CodeExample } from './CodeExample'
 
 const orderedKeys: ['label', ...ColumnKey[]] = [
@@ -149,7 +150,7 @@ function App() {
       label1,
       label2,
       generateSuggestion: () => {
-        return createColor('#8c4a93')
+        return getMedianColor(palette[rowKey][label1], palette[rowKey][label2])
       },
     }
   }
