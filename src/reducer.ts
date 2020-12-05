@@ -1,6 +1,4 @@
-import { Color, createColor } from './color'
-
-export const defaultColor = createColor('#fff')
+import { Color, defaultColor } from './color'
 
 type Row = {
   label: string
@@ -31,6 +29,8 @@ export type RowKey = keyof Palette
 export type ColumnKey = Exclude<keyof Row, 'label'>
 
 export type State = {
+  isCodeModalOpen: boolean
+  isShareModalOpen: boolean
   selectedCell: {
     rowKey: RowKey | undefined
     columnKey: ColumnKey | undefined
@@ -53,6 +53,8 @@ const createEmptyRow = (label: string): Row => ({
 })
 
 export const initialState: State = {
+  isCodeModalOpen: false,
+  isShareModalOpen: false,
   selectedCell: {
     rowKey: undefined,
     columnKey: undefined,
@@ -88,6 +90,8 @@ export type Action =
     }
   | { type: 'UNSELECT_CELL' }
   | { type: 'RESET' }
+  | { type: 'TOGGLE_CODE_MODAL' }
+  | { type: 'TOGGLE_SHARE_MODAL' }
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -118,6 +122,16 @@ export const reducer = (state: State, action: Action): State => {
           rowKey: undefined,
           columnKey: undefined,
         },
+      }
+    case 'TOGGLE_CODE_MODAL':
+      return {
+        ...state,
+        isCodeModalOpen: !state.isCodeModalOpen,
+      }
+    case 'TOGGLE_SHARE_MODAL':
+      return {
+        ...state,
+        isShareModalOpen: !state.isShareModalOpen,
       }
     case 'RESET':
       return initialState

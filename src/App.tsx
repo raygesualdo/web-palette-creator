@@ -1,14 +1,10 @@
 import React, { useReducer } from 'react'
-import { ColorPicker, Suggestion } from './ColorPicker'
-import {
-  initialState,
-  reducer,
-  RowKey,
-  ColumnKey,
-  defaultColor,
-} from './reducer'
-import { Color, getMedianColor } from './color'
-import { CodeExample } from './CodeExample'
+import { ColorPicker } from './ColorPicker'
+import { initialState, reducer, RowKey, ColumnKey } from './reducer'
+import { calculateSuggestion, Color, createColor, defaultColor } from './color'
+import { CodeExampleModal } from './CodeExampleModal'
+import { Footer } from './Footer'
+import { ShareModal } from './ShareModal'
 
 const orderedKeys: ['label', ...ColumnKey[]] = [
   'label',
@@ -23,53 +19,6 @@ const orderedKeys: ['label', ...ColumnKey[]] = [
   '100',
   '50',
 ]
-
-function determineSuggestionDependencies(
-  columnKey: ColumnKey
-): {
-  label1: ColumnKey
-  label2: ColumnKey
-} {
-  if (columnKey === '200') {
-    return {
-      label1: '100',
-      label2: '300',
-    }
-  }
-  if (columnKey === '300') {
-    return {
-      label1: '100',
-      label2: '500',
-    }
-  }
-  if (columnKey === '400') {
-    return {
-      label1: '300',
-      label2: '500',
-    }
-  }
-  if (columnKey === '600') {
-    return {
-      label1: '500',
-      label2: '700',
-    }
-  }
-  if (columnKey === '700') {
-    return {
-      label1: '500',
-      label2: '900',
-    }
-  }
-  if (columnKey === '800') {
-    return {
-      label1: '700',
-      label2: '900',
-    }
-  }
-  // Can't actually get here. Don't know why TS doesn't understand that.
-  // @ts-expect-error
-  return
-}
 
 function LabelCell({ label }: { label: string }) {
   return <div className="flex items-center h-full w-full">{label}</div>
@@ -130,30 +79,10 @@ function App() {
 
   const unselectCell = () => dispatch({ type: 'UNSELECT_CELL' })
 
-  const { palette, selectedCell } = state
+  const toggleCodeModal = () => dispatch({ type: 'TOGGLE_CODE_MODAL' })
+  const toggleShareModal = () => dispatch({ type: 'TOGGLE_SHARE_MODAL' })
 
-  const calculateSuggestion = (
-    rowKey: RowKey,
-    columnKey: ColumnKey
-  ): Suggestion | undefined => {
-    if (['50', '100', '500', '900'].includes(columnKey)) {
-      return
-    }
-
-    const { label1, label2 } = determineSuggestionDependencies(columnKey)
-    const canSuggest =
-      palette[rowKey][label1].hex !== defaultColor.hex &&
-      palette[rowKey][label2].hex !== defaultColor.hex
-
-    return {
-      canSuggest,
-      label1,
-      label2,
-      generateSuggestion: () => {
-        return getMedianColor(palette[rowKey][label1], palette[rowKey][label2])
-      },
-    }
-  }
+  const { isCodeModalOpen, isShareModalOpen, palette, selectedCell } = state
 
   const renderRow = (rowKey: RowKey) => {
     return orderedKeys.map((columnKey) => {
@@ -167,6 +96,32 @@ function App() {
         )
       }
 
+      const color =
+        columnKey === '500' || palette[rowKey][columnKey] !== defaultColor
+          ? palette[rowKey][columnKey]
+          : // @ts-expect-error
+            console.log('creating color') ||
+            createColor({
+              h: palette[rowKey]['500'].hsl.h,
+              s: defaultColor.hsl.s,
+              l: defaultColor.hsl.l,
+            })
+
+      console.log(
+        columnKey,
+        palette[rowKey][columnKey],
+        palette[rowKey][columnKey] === defaultColor,
+        {
+          ...defaultColor.hsl,
+          h: palette[rowKey]['500'].hsl.h,
+        },
+        createColor({
+          ...defaultColor.hsl,
+          h: palette[rowKey]['500'].hsl.h,
+        }),
+        color
+      )
+
       return (
         <Cell
           key={`${rowKey}:${columnKey}`}
@@ -175,13 +130,13 @@ function App() {
             <div className="absolute z-10 top-full mt-2">
               {isSelected && (
                 <ColorPicker
-                  color={palette[rowKey][columnKey]}
+                  color={color}
                   onSave={(color: Color) => {
                     setColor(rowKey!, columnKey!)(color)
                     unselectCell()
                   }}
-                  onCancel={() => dispatch({ type: 'UNSELECT_CELL' })}
-                  suggestion={calculateSuggestion(rowKey, columnKey)}
+                  onCancel={unselectCell}
+                  suggestion={calculateSuggestion(palette, rowKey, columnKey)}
                 />
               )}
             </div>
@@ -193,39 +148,69 @@ function App() {
   }
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-      <div className="p-4">
-        <div className="palette-header">
-          {orderedKeys.map((key) => (
-            <div
-              key={key}
-              className={`font-semibold ${
-                key === 'label' ? 'text-left' : 'text-center'
-              }`}
+    <div className="flex justify-center lg:mt-4">
+      <div
+        className="grid gap-x-4 col-y-8"
+        style={{ gridTemplateColumns: 'min-content 25rem' }}
+      >
+        <div className="p-4">
+          <div className="palette-header">
+            {orderedKeys.map((key) =>
+              key === 'label' ? (
+                <div />
+              ) : (
+                <div key={key} className="font-semibold text-center">
+                  {key}
+                </div>
+              )
+            )}
+          </div>
+          <div className="palette-grid">
+            {renderRow('primary')}
+            {/* {renderRow('secondary')}
+            {renderRow('tertiary')}
+            <GridHr />
+            {renderRow('neutral')}
+            <GridHr />
+            {renderRow('success')}
+            {renderRow('error')}
+            {renderRow('warning')}
+            {renderRow('info')} */}
+          </div>
+        </div>
+        <div className="mt-4 bg-gray-50 p-4 rounded overflow-hidden">
+          <h1 className="bg-gray-900 text-gray-50 px-4 py-8 -mt-4 -mx-4 mb-4 text-3xl font-medium">
+            Web Palette Builder
+          </h1>
+          <div className="mb-4">
+            <p>This is the content that will go in the sidebar.</p>
+          </div>
+          <div className="space-y-2">
+            <button
+              className="inline-flex justify-center w-full py-1 px-3 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              onClick={toggleCodeModal}
             >
-              {key === 'label' ? 'Name' : key}
-            </div>
-          ))}
+              Export color palette
+            </button>
+            <button
+              className="inline-flex justify-center w-full py-1 px-3 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              onClick={toggleShareModal}
+            >
+              Get shareable link
+            </button>
+          </div>
         </div>
-        <div className="palette-grid">
-          {renderRow('primary')}
-          {renderRow('secondary')}
-          {renderRow('tertiary')}
-          <GridHr />
-          {renderRow('neutral')}
-          <GridHr />
-          {renderRow('success')}
-          {renderRow('error')}
-          {renderRow('warning')}
-          {renderRow('info')}
-        </div>
-      </div>
-      <div className="bg-gray-50 p-4">
-        <h1 className="bg-gray-900 text-gray-50 px-4 py-8 -mt-4 -mx-4 mb-4 text-3xl font-medium">
-          Web Palette Builder
-        </h1>
-        <p>This is the content that will go in the sidebar.</p>
-        <CodeExample palette={palette} />
+        <Footer />
+        <CodeExampleModal
+          isOpen={isCodeModalOpen}
+          onRequestClose={toggleCodeModal}
+          palette={palette}
+        />
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onRequestClose={toggleShareModal}
+          palette={palette}
+        />
       </div>
     </div>
   )

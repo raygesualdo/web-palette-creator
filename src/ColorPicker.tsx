@@ -1,15 +1,7 @@
 import React, { useState } from 'react'
 import { Saturation, Hue } from 'react-color/lib/components/common'
 import { ColorFormats } from 'tinycolor2'
-import { Color, createColor } from './color'
-import { ColumnKey, defaultColor } from './reducer'
-
-export type Suggestion = {
-  label1: ColumnKey
-  label2: ColumnKey
-  canSuggest: boolean
-  generateSuggestion: () => Color
-}
+import { Color, createColor, defaultColor, Suggestion } from './color'
 
 export function ColorPicker({
   color,

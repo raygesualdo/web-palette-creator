@@ -9,7 +9,7 @@ export function CodeExample({ palette }: { palette: State['palette'] }) {
 
   return (
     <Fragment>
-      <div className="flex my-2 gap-x-4">
+      <div className="flex mb-4 gap-x-2">
         <select
           className="py-1 px-2 bg-gray-200 rounded cursor-pointer hover:bg-gray-300"
           onChange={(event) => setExportType(event.target.value as ExportType)}
@@ -33,7 +33,7 @@ export function CodeExample({ palette }: { palette: State['palette'] }) {
         </select>
       </div>
       <pre
-        className="p-2 mt-4 bg-indigo-100 rounded shadow-inner select-all overflow-y-auto"
+        className="p-2 bg-indigo-100 text-sm rounded shadow-inner select-all overflow-y-auto"
         style={{ maxHeight: '600px' }}
       >
         {generateExportContent({
