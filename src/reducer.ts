@@ -1,7 +1,6 @@
 import { Color, defaultColor } from './color'
 
 type Row = {
-  label: string
   '50': Color
   '100': Color
   '200': Color
@@ -39,7 +38,6 @@ export type State = {
 }
 
 const createEmptyRow = (label: string): Row => ({
-  label,
   '50': defaultColor,
   '100': defaultColor,
   '200': defaultColor,
@@ -51,6 +49,20 @@ const createEmptyRow = (label: string): Row => ({
   '800': defaultColor,
   '900': defaultColor,
 })
+
+export const getLabelForRow = (rowKey: RowKey) => {
+  const labels: Record<RowKey, string> = {
+    primary: 'Primary',
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
+    neutral: 'Neutral',
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
+    info: 'Info',
+  }
+  return labels[rowKey]
+}
 
 export const initialState: State = {
   isCodeModalOpen: false,
@@ -72,10 +84,6 @@ export const initialState: State = {
 }
 
 export type Action =
-  | {
-      type: 'SET_VALUE'
-      payload: { rowKey: RowKey; columnKey: 'label'; value: string }
-    }
   | {
       type: 'SET_VALUE'
       payload: {

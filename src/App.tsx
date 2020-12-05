@@ -1,13 +1,20 @@
-import React, { useReducer } from 'react'
+import React, { Fragment, useReducer } from 'react'
 import { ColorPicker } from './ColorPicker'
-import { initialState, reducer, RowKey, ColumnKey } from './reducer'
+import {
+  initialState,
+  reducer,
+  RowKey,
+  ColumnKey,
+  State,
+  getLabelForRow,
+} from './reducer'
 import { calculateSuggestion, Color, createColor, defaultColor } from './color'
 import { CodeExampleModal } from './CodeExampleModal'
 import { Footer } from './Footer'
 import { ShareModal } from './ShareModal'
+import { parseStringifiedPalette } from './sharing'
 
-const orderedKeys: ['label', ...ColumnKey[]] = [
-  'label',
+const orderedKeys: ColumnKey[] = [
   '900',
   '800',
   '700',
@@ -55,8 +62,20 @@ function GridHr() {
   )
 }
 
+function determineInitialState(): State {
+  if (window.location.hash.length) {
+    const palette = parseStringifiedPalette(window.location.hash.slice(1))
+    // window.location.hash = ''
+    return {
+      ...initialState,
+      palette,
+    }
+  }
+  return initialState
+}
+
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, determineInitialState())
 
   const setColor = (rowKey: RowKey, columnKey: ColumnKey) => (color: Color) =>
     dispatch({
@@ -85,42 +104,19 @@ function App() {
   const { isCodeModalOpen, isShareModalOpen, palette, selectedCell } = state
 
   const renderRow = (rowKey: RowKey) => {
-    return orderedKeys.map((columnKey) => {
+    const cells = orderedKeys.map((columnKey) => {
       const value = palette[rowKey][columnKey]
       const isSelected =
         selectedCell.rowKey === rowKey && selectedCell.columnKey === columnKey
 
-      if (columnKey === 'label') {
-        return (
-          <LabelCell key={`${rowKey}:${columnKey}`} label={value! as string} />
-        )
-      }
-
       const color =
         columnKey === '500' || palette[rowKey][columnKey] !== defaultColor
           ? palette[rowKey][columnKey]
-          : // @ts-expect-error
-            console.log('creating color') ||
-            createColor({
+          : createColor({
               h: palette[rowKey]['500'].hsl.h,
               s: defaultColor.hsl.s,
               l: defaultColor.hsl.l,
             })
-
-      console.log(
-        columnKey,
-        palette[rowKey][columnKey],
-        palette[rowKey][columnKey] === defaultColor,
-        {
-          ...defaultColor.hsl,
-          h: palette[rowKey]['500'].hsl.h,
-        },
-        createColor({
-          ...defaultColor.hsl,
-          h: palette[rowKey]['500'].hsl.h,
-        }),
-        color
-      )
 
       return (
         <Cell
@@ -145,6 +141,12 @@ function App() {
         />
       )
     })
+    return (
+      <Fragment>
+        <LabelCell key={`${rowKey}:label`} label={getLabelForRow(rowKey)} />
+        {cells}
+      </Fragment>
+    )
   }
 
   return (
@@ -155,19 +157,16 @@ function App() {
       >
         <div className="p-4">
           <div className="palette-header">
-            {orderedKeys.map((key) =>
-              key === 'label' ? (
-                <div />
-              ) : (
-                <div key={key} className="font-semibold text-center">
-                  {key}
-                </div>
-              )
-            )}
+            <div />
+            {orderedKeys.map((key) => (
+              <div key={key} className="font-semibold text-center">
+                {key}
+              </div>
+            ))}
           </div>
           <div className="palette-grid">
             {renderRow('primary')}
-            {/* {renderRow('secondary')}
+            {renderRow('secondary')}
             {renderRow('tertiary')}
             <GridHr />
             {renderRow('neutral')}
@@ -175,7 +174,7 @@ function App() {
             {renderRow('success')}
             {renderRow('error')}
             {renderRow('warning')}
-            {renderRow('info')} */}
+            {renderRow('info')}
           </div>
         </div>
         <div className="mt-4 bg-gray-50 p-4 rounded overflow-hidden">

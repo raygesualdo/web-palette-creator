@@ -5,7 +5,6 @@ export function serializePalette(palette: State['palette']): string {
   return Object.keys(palette)
     .map((rowKey) => {
       const str = Object.keys(palette[rowKey as RowKey])
-        .filter((columnKey) => columnKey !== 'label')
         .map((columnKey) => {
           const { hsl } = palette[rowKey as RowKey][columnKey as ColumnKey]
           return [

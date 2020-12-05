@@ -43,15 +43,13 @@ function lineMapper(
 ) {
   return orderedRows
     .map((rowKey) => {
-      return Object.keys(palette[rowKey])
-        .filter((k) => k !== 'label')
-        .map((columnKey) => {
-          const color = getColorValue(
-            palette[rowKey][columnKey as ColumnKey],
-            colorFormat
-          )
-          return fn(rowKey, columnKey as ColumnKey, color)
-        })
+      return Object.keys(palette[rowKey]).map((columnKey) => {
+        const color = getColorValue(
+          palette[rowKey][columnKey as ColumnKey],
+          colorFormat
+        )
+        return fn(rowKey, columnKey as ColumnKey, color)
+      })
     })
     .flat()
     .join('\n')
@@ -124,7 +122,6 @@ function getTailwindConfig(
   const lines = orderedRows
     .map((rowKey) => {
       const keysAndValues = Object.keys(palette[rowKey])
-        .filter((k) => k !== 'label')
         .map((columnKey) => {
           const color = getColorValue(
             palette[rowKey][columnKey as ColumnKey],
