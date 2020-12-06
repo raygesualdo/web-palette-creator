@@ -65,7 +65,11 @@ function GridHr() {
 function determineInitialState(): State {
   if (window.location.hash.length) {
     const palette = parseStringifiedPalette(window.location.hash.slice(1))
-    // window.location.hash = ''
+    window.history.pushState(
+      null,
+      '',
+      window.location.origin + window.location.search
+    )
     return {
       ...initialState,
       palette,
@@ -74,8 +78,10 @@ function determineInitialState(): State {
   return initialState
 }
 
+const finalInitialState = determineInitialState()
+
 function App() {
-  const [state, dispatch] = useReducer(reducer, determineInitialState())
+  const [state, dispatch] = useReducer(reducer, finalInitialState)
 
   const setColor = (rowKey: RowKey, columnKey: ColumnKey) => (color: Color) =>
     dispatch({
