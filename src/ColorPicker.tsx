@@ -79,7 +79,7 @@ export function ColorPicker({
         />
         <div className="relative w-44 h-4">
           <Hue
-            {...tempColor}
+            hsl={tempColor.hsl}
             pointer={HuePointer}
             // @ts-expect-error
             onChange={handleHueChange}

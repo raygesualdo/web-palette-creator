@@ -8,7 +8,7 @@ import {
   State,
   getLabelForRow,
 } from './reducer'
-import { calculateSuggestion, Color, createColor, defaultColor } from './color'
+import { calculateSuggestion, Color, defaultColor, replaceHue } from './color'
 import { CodeExampleModal } from './CodeExampleModal'
 import { Footer } from './Footer'
 import { ShareModal } from './ShareModal'
@@ -108,15 +108,10 @@ function App() {
       const value = palette[rowKey][columnKey]
       const isSelected =
         selectedCell.rowKey === rowKey && selectedCell.columnKey === columnKey
-
       const color =
         columnKey === '500' || palette[rowKey][columnKey] !== defaultColor
           ? palette[rowKey][columnKey]
-          : createColor({
-              h: palette[rowKey]['500'].hsl.h,
-              s: defaultColor.hsl.s,
-              l: defaultColor.hsl.l,
-            })
+          : replaceHue(palette[rowKey][columnKey], palette[rowKey]['500'].hsl.h)
 
       return (
         <Cell

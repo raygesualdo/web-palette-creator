@@ -108,3 +108,17 @@ export const calculateSuggestion = (
     },
   }
 }
+
+export function replaceHue(color: Color, hue: number): Color {
+  return {
+    ...color,
+    hsl: {
+      ...color.hsl,
+      h: hue,
+    },
+    hsv: {
+      ...color.hsv,
+      h: hue,
+    },
+  }
+}
