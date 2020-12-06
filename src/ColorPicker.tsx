@@ -3,6 +3,16 @@ import { Saturation, Hue } from 'react-color/lib/components/common'
 import { ColorFormats } from 'tinycolor2'
 import { Color, createColor, defaultColor, Suggestion } from './color'
 
+const HuePointer = () => {
+  return (
+    <div
+      className="h-6 w-3 rounded border bg-white border-gray-200 shadow transform -translate-x-0 -translate-y-1"
+      // @ts-expect-error React doesn't seem to understand CSS custom properties
+      style={{ '--tw-translate-x': '-.3625rem' }}
+    ></div>
+  )
+}
+
 export function ColorPicker({
   color,
   onSave,
@@ -70,7 +80,7 @@ export function ColorPicker({
         <div className="relative w-44 h-4">
           <Hue
             {...tempColor}
-            // pointer={<div className="h-4 w-4 rounded-full bg-white" />}
+            pointer={HuePointer}
             // @ts-expect-error
             onChange={handleHueChange}
           />
