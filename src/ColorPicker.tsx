@@ -24,21 +24,11 @@ export function ColorPicker({
   onCancel: () => void
   suggestion?: Suggestion
 }) {
-  const [tempColor, setTempColor] = useState(color)
+  const [tempColor, setTempColor] = useState(color.hsl)
 
   const handleSaturationChange = (color: ColorFormats.HSV): void => {
     const newColor = createColor(color)
-    setTempColor(newColor)
-  }
-
-  const handleHueChange = (color: ColorFormats.HSL): void => {
-    const newColor = createColor(color)
-    setTempColor(newColor)
-  }
-
-  const handleHSLChange = (color: ColorFormats.HSL): void => {
-    const newColor = createColor(color)
-    setTempColor(newColor)
+    setTempColor(newColor.hsl)
   }
 
   const handleReset = () => {
@@ -62,27 +52,31 @@ export function ColorPicker({
           </span>
           <button
             className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            onClick={() => setTempColor(suggestion.generateSuggestion())}
+            onClick={() => setTempColor(suggestion.generateSuggestion().hsl)}
           >
             Apply
           </button>
         </div>
       )}
       <div className="relative h-56 w-full mb-2">
-        {/* @ts-expect-error */}
-        <Saturation {...tempColor} onChange={handleSaturationChange} />
+        <Saturation
+          {...createColor(tempColor)}
+          hsl={tempColor}
+          // @ts-expect-error
+          onChange={handleSaturationChange}
+        />
       </div>
       <div className="flex items-center gap-x-4 mb-2">
         <div
           className="rounded w-12 h-12 shadow-sm border border-gray-100"
-          style={{ backgroundColor: tempColor.hex }}
+          style={{ backgroundColor: createColor(tempColor).hex }}
         />
         <div className="relative w-44 h-4">
           <Hue
-            hsl={tempColor.hsl}
+            hsl={tempColor}
             pointer={HuePointer}
             // @ts-expect-error
-            onChange={handleHueChange}
+            onChange={setTempColor}
           />
         </div>
       </div>
@@ -91,14 +85,14 @@ export function ColorPicker({
           <div>
             <input
               type="number"
-              value={Number(tempColor.hsl.h).toFixed(0)}
+              value={Number(tempColor.h).toFixed(0)}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const value = event.target.valueAsNumber
                 if (value < 0 || value > 360) return
-                handleHSLChange({
+                setTempColor({
                   h: value,
-                  s: tempColor.hsl.s,
-                  l: tempColor.hsl.l,
+                  s: tempColor.s,
+                  l: tempColor.l,
                 })
               }}
               className="rounded border border-gray-300 w-full"
@@ -110,14 +104,14 @@ export function ColorPicker({
           <div>
             <input
               type="number"
-              value={(Number(tempColor.hsl.s) * 100).toFixed(0)}
+              value={(Number(tempColor.s) * 100).toFixed(0)}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const value = event.target.valueAsNumber
                 if (value < 0 || value > 100) return
-                handleHSLChange({
-                  h: tempColor.hsl.h,
+                setTempColor({
+                  h: tempColor.h,
                   s: value / 100,
-                  l: tempColor.hsl.l,
+                  l: tempColor.l,
                 })
               }}
               className="rounded border border-gray-300 w-full"
@@ -129,13 +123,13 @@ export function ColorPicker({
           <div>
             <input
               type="number"
-              value={(Number(tempColor.hsl.l) * 100).toFixed(0)}
+              value={(Number(tempColor.l) * 100).toFixed(0)}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const value = event.target.valueAsNumber
                 if (value < 0 || value > 100) return
-                handleHSLChange({
-                  h: tempColor.hsl.h,
-                  s: tempColor.hsl.s,
+                setTempColor({
+                  h: tempColor.h,
+                  s: tempColor.s,
                   l: value / 100,
                 })
               }}
@@ -162,7 +156,7 @@ export function ColorPicker({
         </button>
         <button
           className="inline-flex justify-center py-1 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={() => onSave(tempColor)}
+          onClick={() => onSave(createColor(tempColor))}
         >
           Save
         </button>
