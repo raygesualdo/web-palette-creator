@@ -38,7 +38,7 @@ export type State = {
   palette: Palette
 }
 
-const createEmptyRow = (label: string): Row => ({
+const createEmptyRow = (): Row => ({
   '50': defaultColor,
   '100': defaultColor,
   '200': defaultColor,
@@ -73,14 +73,14 @@ export const initialState: State = {
     columnKey: undefined,
   },
   palette: {
-    primary: createEmptyRow('Primary'),
-    secondary: createEmptyRow('Secondary'),
-    tertiary: createEmptyRow('Tertiary'),
-    neutral: createEmptyRow('Neutral'),
-    success: createEmptyRow('Success'),
-    error: createEmptyRow('Error'),
-    warning: createEmptyRow('Warning'),
-    info: createEmptyRow('Info'),
+    primary: createEmptyRow(),
+    secondary: createEmptyRow(),
+    tertiary: createEmptyRow(),
+    neutral: createEmptyRow(),
+    success: createEmptyRow(),
+    error: createEmptyRow(),
+    warning: createEmptyRow(),
+    info: createEmptyRow(),
   },
 }
 
