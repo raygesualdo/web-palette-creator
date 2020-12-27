@@ -1,3 +1,4 @@
+import produce from 'immer'
 import { Color, defaultColor } from './color'
 
 type Row = {
@@ -101,49 +102,30 @@ export type Action =
   | { type: 'TOGGLE_CODE_MODAL' }
   | { type: 'TOGGLE_SHARE_MODAL' }
 
-export const reducer = (state: State, action: Action): State => {
+export const reducer = produce((draft: State, action: Action) => {
   switch (action.type) {
     case 'SET_VALUE':
-      // ugh, deeply cloning state is dumb
-      return {
-        ...state,
-        palette: {
-          ...state.palette,
-          [action.payload.rowKey]: {
-            ...state.palette[action.payload.rowKey],
-            [action.payload.columnKey]: action.payload.value,
-          },
-        },
-      }
+      draft.palette[action.payload.rowKey][action.payload.columnKey] =
+        action.payload.value
+      break
     case 'SELECT_CELL':
-      return {
-        ...state,
-        selectedCell: {
-          rowKey: action.payload.rowKey,
-          columnKey: action.payload.columnKey,
-        },
-      }
+      draft.selectedCell.rowKey = action.payload.rowKey
+      draft.selectedCell.columnKey = action.payload.columnKey
+      break
     case 'UNSELECT_CELL':
-      return {
-        ...state,
-        selectedCell: {
-          rowKey: undefined,
-          columnKey: undefined,
-        },
-      }
+      draft.selectedCell.rowKey = undefined
+      draft.selectedCell.columnKey = undefined
+      break
     case 'TOGGLE_CODE_MODAL':
-      return {
-        ...state,
-        isCodeModalOpen: !state.isCodeModalOpen,
-      }
+      draft.isCodeModalOpen = !draft.isCodeModalOpen
+      break
     case 'TOGGLE_SHARE_MODAL':
-      return {
-        ...state,
-        isShareModalOpen: !state.isShareModalOpen,
-      }
+      draft.isShareModalOpen = !draft.isShareModalOpen
+      break
     case 'RESET':
-      return initialState
+      draft = initialState
+      break
     default:
       throw new Error('No action handler provided.')
   }
-}
+})
